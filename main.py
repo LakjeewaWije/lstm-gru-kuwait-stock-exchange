@@ -44,3 +44,9 @@ def create_dataset(data, window_size=60, forecast_horizon=5):
     return np.array(X), np.array(y)
 
 X, y = create_dataset(dataset, window_size, forecast_horizon)
+
+# Split the dataset into training and testing sets
+split = int(0.8 * len(X))
+print("Split:", split , len(X))
+X_train_raw, X_test_raw = X[:split], X[split:]
+y_train_raw, y_test_raw = y[:split], y[split:]
