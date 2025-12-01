@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import yfinance as yf
+from sklearn.preprocessing import MinMaxScaler
 
 # ==============================
 # 2. Load NBK.KW Data (2015–2025)
@@ -50,3 +51,15 @@ split = int(0.8 * len(X))
 print("Split:", split , len(X))
 X_train_raw, X_test_raw = X[:split], X[split:]
 y_train_raw, y_test_raw = y[:split], y[split:]
+
+
+# ==============================
+# 5. Scaling
+# ==============================
+scaler = MinMaxScaler()
+X_train = scaler.fit_transform(X_train_raw.reshape(-1, X_train_raw.shape[2])).reshape(X_train_raw.shape)
+X_test = scaler.transform(X_test_raw.reshape(-1, X_test_raw.shape[2])).reshape(X_test_raw.shape)
+
+y_scaler = MinMaxScaler()
+y_train = y_scaler.fit_transform(y_train_raw)
+y_test = y_scaler.transform(y_test_raw)
