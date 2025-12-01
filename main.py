@@ -29,3 +29,18 @@ print(dataset[:5])
 # Print the total number of rows and columns
 print("\nShape of dataset (rows, columns):")
 print(dataset.shape)
+
+# ==============================
+# 4. Dataset Creation Function
+# ==============================
+window_size = 60
+forecast_horizon = 5
+
+def create_dataset(data, window_size=60, forecast_horizon=5):
+    X, y = [], []
+    for i in range(len(data) - window_size - forecast_horizon):
+        X.append(data[i:i+window_size])
+        y.append(data[i+window_size:i+window_size+forecast_horizon, 3])  # Close index
+    return np.array(X), np.array(y)
+
+X, y = create_dataset(dataset, window_size, forecast_horizon)
