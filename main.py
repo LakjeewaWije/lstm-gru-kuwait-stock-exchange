@@ -10,6 +10,7 @@ import yfinance as yf
 from sklearn.preprocessing import MinMaxScaler
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, GRU, Dense, Dropout, Bidirectional
+from tensorflow.keras.callbacks import ReduceLROnPlateau, EarlyStopping
 
 # ==============================
 # 2. Load NBK.KW Data (2015–2025)
@@ -91,3 +92,19 @@ def build_gru(input_shape, horizon):
 
 lstm_model = build_lstm((window_size, X_train.shape[2]), forecast_horizon)
 gru_model = build_gru((window_size, X_train.shape[2]), forecast_horizon)
+
+# ==============================
+# 7. Train Models
+# ==============================
+lr_scheduler = ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=5, verbose=1)
+early_stop = EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True)
+
+print("Training LSTM...")
+lstm_model.fit(X_train, y_train, epochs=100, batch_size=32,
+               validation_data=(X_test, y_test),
+               callbacks=[lr_scheduler, early_stop], verbose=1)
+
+print("Training GRU...")
+gru_model.fit(X_train, y_train, epochs=100, batch_size=32,
+              validation_data=(X_test, y_test),
+              callbacks=[lr_scheduler, early_stop], verbose=1)
