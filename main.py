@@ -108,3 +108,13 @@ print("Training GRU...")
 gru_model.fit(X_train, y_train, epochs=100, batch_size=32,
               validation_data=(X_test, y_test),
               callbacks=[lr_scheduler, early_stop], verbose=1)
+
+# ==============================
+# 8. Predictions
+# ==============================
+lstm_predictions = lstm_model.predict(X_test)
+gru_predictions = gru_model.predict(X_test)
+
+lstm_predictions_rescaled = y_scaler.inverse_transform(lstm_predictions)
+gru_predictions_rescaled = y_scaler.inverse_transform(gru_predictions)
+y_test_rescaled = y_scaler.inverse_transform(y_test)
