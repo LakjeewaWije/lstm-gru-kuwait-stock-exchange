@@ -8,6 +8,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import yfinance as yf
 from sklearn.preprocessing import MinMaxScaler
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import LSTM, GRU, Dense, Dropout, Bidirectional
 
 # ==============================
 # 2. Load NBK.KW Data (2015–2025)
@@ -63,3 +65,29 @@ X_test = scaler.transform(X_test_raw.reshape(-1, X_test_raw.shape[2])).reshape(X
 y_scaler = MinMaxScaler()
 y_train = y_scaler.fit_transform(y_train_raw)
 y_test = y_scaler.transform(y_test_raw)
+
+# ==============================
+# 6. Build Models
+# ==============================
+def build_lstm(input_shape, horizon):
+    model = Sequential()
+    model.add(Bidirectional(LSTM(128, return_sequences=True), input_shape=input_shape))
+    model.add(Dropout(0.3))
+    model.add(Bidirectional(LSTM(128)))
+    model.add(Dropout(0.3))
+    model.add(Dense(horizon))
+    model.compile(optimizer='adam', loss='mae')
+    return model
+
+def build_gru(input_shape, horizon):
+    model = Sequential()
+    model.add(Bidirectional(GRU(128, return_sequences=True), input_shape=input_shape))
+    model.add(Dropout(0.3))
+    model.add(Bidirectional(GRU(128)))
+    model.add(Dropout(0.3))
+    model.add(Dense(horizon))
+    model.compile(optimizer='adam', loss='mae')
+    return model
+
+lstm_model = build_lstm((window_size, X_train.shape[2]), forecast_horizon)
+gru_model = build_gru((window_size, X_train.shape[2]), forecast_horizon)
