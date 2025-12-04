@@ -18,7 +18,7 @@ import matplotlib.dates as mdates
 # 2. Load NBK.KW Data (2015–2025)
 # ==============================
 ticker = "NBK.KW"
-data = yf.download(ticker, start="2015-01-01", end="2025-12-03")
+data = yf.download(ticker, start="2024-01-01", end="2025-12-03")
 data.dropna(inplace=True)
 
 # ==============================
@@ -143,3 +143,22 @@ evaluate_per_horizon("GRU", y_test_rescaled, gru_predictions_rescaled)
 print("\nNaive Baseline (Last Value Forward):")
 naive_preds = np.repeat(y_test_rescaled[:,0].reshape(-1,1), forecast_horizon, axis=1)
 evaluate_per_horizon("Naive", y_test_rescaled, naive_preds)
+
+
+# ==============================
+# 11. Plot Example Horizon-1 Results
+# ==============================
+test_dates = data.index[split + window_size : split + window_size + len(y_test)]
+plt.figure(figsize=(12,6))
+plt.plot(test_dates, y_test_rescaled[:,0], label="Actual (Horizon-1)", color='blue')
+plt.plot(test_dates, lstm_predictions_rescaled[:,0], label="LSTM Horizon-1", color='orange')
+plt.plot(test_dates, gru_predictions_rescaled[:,0], label="GRU Horizon-1", color='green')
+plt.title("Horizon-1 Forecast Comparison")
+plt.xlabel("Date")
+plt.ylabel("Price (KWD)")
+plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+plt.xticks(rotation=45)
+plt.legend()
+plt.tight_layout()
+plt.show()
+
