@@ -18,7 +18,7 @@ import matplotlib.dates as mdates
 # 2. Load NBK.KW Data (2015–2025)
 # ==============================
 ticker = "NBK.KW"
-data = yf.download(ticker, start="2015-01-01", end="2025-11-25")
+data = yf.download(ticker, start="2015-01-01", end="2025-12-03")
 data.dropna(inplace=True)
 
 # ==============================
@@ -136,3 +136,10 @@ def evaluate_per_horizon(name, y_true, y_pred):
 
 evaluate_per_horizon("LSTM", y_test_rescaled, lstm_predictions_rescaled)
 evaluate_per_horizon("GRU", y_test_rescaled, gru_predictions_rescaled)
+
+# ==============================
+# 10. Baseline Comparisons
+# ==============================
+print("\nNaive Baseline (Last Value Forward):")
+naive_preds = np.repeat(y_test_rescaled[:,0].reshape(-1,1), forecast_horizon, axis=1)
+evaluate_per_horizon("Naive", y_test_rescaled, naive_preds)
