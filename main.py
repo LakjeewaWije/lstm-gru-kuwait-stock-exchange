@@ -8,9 +8,11 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import yfinance as yf
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, GRU, Dense, Dropout, Bidirectional
 from tensorflow.keras.callbacks import ReduceLROnPlateau, EarlyStopping
+import matplotlib.dates as mdates
 
 # ==============================
 # 2. Load NBK.KW Data (2015–2025)
@@ -118,3 +120,19 @@ gru_predictions = gru_model.predict(X_test)
 lstm_predictions_rescaled = y_scaler.inverse_transform(lstm_predictions)
 gru_predictions_rescaled = y_scaler.inverse_transform(gru_predictions)
 y_test_rescaled = y_scaler.inverse_transform(y_test)
+
+
+# ==============================
+# 9. Per-Horizon Evaluation
+# ==============================
+def evaluate_per_horizon(name, y_true, y_pred):
+    print(f"\n{name} Per-Horizon Evaluation:")
+    for h in range(y_true.shape[1]):
+        mae = mean_absolute_error(y_true[:,h], y_pred[:,h])
+        rmse = np.sqrt(mean_squared_error(y_true[:,h], y_pred[:,h]))
+        mape = np.mean(np.abs((y_true[:,h] - y_pred[:,h]) / y_true[:,h])) * 100
+        r2 = r2_score(y_true[:,h], y_pred[:,h])
+        print(f"Horizon {h+1}: MAE={mae:.2f}, RMSE={rmse:.2f}, MAPE={mape:.2f}%, R²={r2:.4f}")
+
+evaluate_per_horizon("LSTM", y_test_rescaled, lstm_predictions_rescaled)
+evaluate_per_horizon("GRU", y_test_rescaled, gru_predictions_rescaled)
