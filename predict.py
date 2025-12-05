@@ -5,7 +5,7 @@ from tensorflow.keras.models import load_model
 import joblib
 import config
 
-def predict_next_5_closes(ticker,gru_model_path,scaler_path,y_scaler_path,start=config.START_DATE,end=config.END_DATE, window_size=60, forecast_horizon=5):
+def predict_next_5_closes(ticker,gru_model_path,scaler_path,y_scaler_path,start=config.start,end=config.end, window_size=60, forecast_horizon=5):
     # Load saved models and scalers
     gru_model  = load_model(gru_model_path)
     scaler     = joblib.load(scaler_path)
@@ -34,11 +34,12 @@ def predict_next_5_closes(ticker,gru_model_path,scaler_path,y_scaler_path,start=
         if last_date.weekday() in [6,0,1,2,3]:  # Sun=6, Mon=0 ... Thu=3
             forecast_dates.append(last_date)
 
-    # Return forecast with dates
-    forecast_df = pd.DataFrame({
-        "Date": forecast_dates,
-        "GRU Forecast": gru_forecast
-    })
+    # Build list of dicts directly
+    forecast_list = [
+        {"date": str(date.date()), "price": f"{price:.2f}"}
+        for date, price in zip(forecast_dates, gru_forecast)
+    ]
 
-    print("\nNext 5-Day Forecasts:")
-    print(forecast_df.to_string(index=False))
+    return {ticker: forecast_list}
+
+

@@ -19,7 +19,7 @@ import config
 # ==============================
 # 2. Load NBK.KW Data (2015–2025)
 # ==============================
-ticker = "NBK.KW" # Replace with the desired stock ticker - NBK.KW , KFH.KW , ZAIN.KW , BOUBYAN.KW
+ticker = "BOUBYAN.KW" # Replace with the desired stock ticker - NBK.KW , KFH.KW , ZAIN.KW , BOUBYAN.KW
 data = yf.download(ticker, start=config.start, end=config.end)
 data.dropna(inplace=True)
 
