@@ -18,7 +18,7 @@ import matplotlib.dates as mdates
 # 2. Load NBK.KW Data (2015–2025)
 # ==============================
 ticker = "NBK.KW"
-data = yf.download(ticker, start="2024-01-01", end="2025-12-03")
+data = yf.download(ticker, start="2015-01-01", end="2025-11-25")
 data.dropna(inplace=True)
 
 # ==============================
@@ -28,9 +28,13 @@ data['Volume'] = np.log1p(data['Volume'])  # log-transform volume
 features = ['Open', 'High', 'Low', 'Close', 'Volume']
 dataset = data[features].values
 
-# Print the first 5 rows of the dataset
-print("First 5 rows:")
-print(dataset[:5])
+# Print the first 5 rows with dates
+print("First 5 rows with dates:")
+print(data[features].head())
+
+# Print the last 5 rows with dates
+print("\nLast 5 rows with dates:")
+print(data[features].tail())
 
 # Print the total number of rows and columns
 print("\nShape of dataset (rows, columns):")
@@ -161,4 +165,33 @@ plt.xticks(rotation=45)
 plt.legend()
 plt.tight_layout()
 plt.show()
+
+# ==============================
+# 12. Forecast Next 5 Trading Days (Sun–Thu)
+# ==============================
+
+# Prepare last input window
+last_window = scaler.transform(dataset[-window_size:]).reshape(1, window_size, -1)
+
+# Predict next 5 closes
+lstm_forecast = y_scaler.inverse_transform(lstm_model.predict(last_window)).flatten()
+gru_forecast  = y_scaler.inverse_transform(gru_model.predict(last_window)).flatten()
+
+# Generate next 5 valid trading dates (Sun–Thu only)
+last_date = data.index[-1]
+forecast_dates = []
+while len(forecast_dates) < forecast_horizon:
+    last_date += pd.Timedelta(days=1)
+    if last_date.weekday() in [6,0,1,2,3]:  # Sun=6, Mon=0 ... Thu=3
+        forecast_dates.append(last_date)
+
+# Build forecast DataFrame
+forecast_df = pd.DataFrame({
+    "Date": forecast_dates,
+    "LSTM Forecast": lstm_forecast,
+    "GRU Forecast": gru_forecast
+})
+
+print("\nNext 5-Day Forecasts:")
+print(forecast_df)
 
