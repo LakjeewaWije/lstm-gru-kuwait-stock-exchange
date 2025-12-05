@@ -13,12 +13,14 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, GRU, Dense, Dropout, Bidirectional
 from tensorflow.keras.callbacks import ReduceLROnPlateau, EarlyStopping
 import matplotlib.dates as mdates
+import joblib
+import config
 
 # ==============================
 # 2. Load NBK.KW Data (2015–2025)
 # ==============================
-ticker = "NBK.KW"
-data = yf.download(ticker, start="2015-01-01", end="2025-11-25")
+ticker = "NBK.KW" # Replace with the desired stock ticker - NBK.KW , KFH.KW , ZAIN.KW , BOUBYAN.KW
+data = yf.download(ticker, start=config.start, end=config.end)
 data.dropna(inplace=True)
 
 # ==============================
@@ -116,7 +118,18 @@ gru_model.fit(X_train, y_train, epochs=100, batch_size=32,
               callbacks=[lr_scheduler, early_stop], verbose=1)
 
 # ==============================
-# 8. Predictions
+# 8. Save trained models and scalers
+# ==============================
+safe_ticker = ticker.replace(".", "_")   # NBK_KW
+gru_model.save(f"models/{safe_ticker}/gru_model.h5")
+joblib.dump(scaler, f"models/{safe_ticker}/feature_scaler.pkl")
+joblib.dump(y_scaler, f"models/{safe_ticker}/target_scaler.pkl")
+
+print(f"Models and scalers saved successfully at models/{safe_ticker} folder.")
+
+
+# ==============================
+# 9. Predictions
 # ==============================
 lstm_predictions = lstm_model.predict(X_test)
 gru_predictions = gru_model.predict(X_test)
@@ -127,7 +140,7 @@ y_test_rescaled = y_scaler.inverse_transform(y_test)
 
 
 # ==============================
-# 9. Per-Horizon Evaluation
+# 10. Per-Horizon Evaluation
 # ==============================
 def evaluate_per_horizon(name, y_true, y_pred):
     print(f"\n{name} Per-Horizon Evaluation:")
@@ -142,7 +155,7 @@ evaluate_per_horizon("LSTM", y_test_rescaled, lstm_predictions_rescaled)
 evaluate_per_horizon("GRU", y_test_rescaled, gru_predictions_rescaled)
 
 # ==============================
-# 10. Baseline Comparisons
+# 11. Baseline Comparisons
 # ==============================
 print("\nNaive Baseline (Last Value Forward):")
 naive_preds = np.repeat(y_test_rescaled[:,0].reshape(-1,1), forecast_horizon, axis=1)
@@ -150,7 +163,7 @@ evaluate_per_horizon("Naive", y_test_rescaled, naive_preds)
 
 
 # ==============================
-# 11. Plot Example Horizon-1 Results
+# 12. Plot Example Horizon-1 Results
 # ==============================
 test_dates = data.index[split + window_size : split + window_size + len(y_test)]
 plt.figure(figsize=(12,6))
@@ -167,7 +180,7 @@ plt.tight_layout()
 plt.show()
 
 # ==============================
-# 12. Forecast Next 5 Trading Days (Sun–Thu)
+# 13. Forecast Next 5 Trading Days (Sun–Thu)
 # ==============================
 
 # Prepare last input window
