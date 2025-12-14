@@ -19,7 +19,7 @@ import config
 # ==============================
 # 2. Load NBK.KW Data (2015–2025)
 # ==============================
-ticker = "BOUBYAN.KW" # Replace with the desired stock ticker - NBK.KW , KFH.KW , ZAIN.KW , BOUBYAN.KW
+ticker = "NBK.KW" # Replace with the desired stock ticker - NBK.KW , KFH.KW , ZAIN.KW , BOUBYAN.KW
 data = yf.download(ticker, start=config.start, end=config.end)
 data.dropna(inplace=True)
 
@@ -59,7 +59,7 @@ X, y = create_dataset(dataset, window_size, forecast_horizon)
 
 # Split the dataset into training and testing sets
 split = int(0.8 * len(X))
-print("Split:", split , len(X))
+print("Split:", split ,"X,shape:", len(X),X.shape,"y,shape:", len(y),y.shape)
 X_train_raw, X_test_raw = X[:split], X[split:]
 y_train_raw, y_test_raw = y[:split], y[split:]
 
@@ -146,10 +146,10 @@ def evaluate_per_horizon(name, y_true, y_pred):
     print(f"\n{name} Per-Horizon Evaluation:")
     for h in range(y_true.shape[1]):
         mae = mean_absolute_error(y_true[:,h], y_pred[:,h])
+        mse = mean_squared_error(y_true[:,h], y_pred[:,h])
         rmse = np.sqrt(mean_squared_error(y_true[:,h], y_pred[:,h]))
         mape = np.mean(np.abs((y_true[:,h] - y_pred[:,h]) / y_true[:,h])) * 100
-        r2 = r2_score(y_true[:,h], y_pred[:,h])
-        print(f"Horizon {h+1}: MAE={mae:.2f}, RMSE={rmse:.2f}, MAPE={mape:.2f}%, R²={r2:.4f}")
+        print(f"Horizon {h+1}: MAE={mae:.2f}, MSE={mse:.2f}, RMSE={rmse:.2f}, MAPE={mape:.2f}%")
 
 evaluate_per_horizon("LSTM", y_test_rescaled, lstm_predictions_rescaled)
 evaluate_per_horizon("GRU", y_test_rescaled, gru_predictions_rescaled)

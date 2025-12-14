@@ -92,31 +92,36 @@
     </div>
 
     <script>
-        {% for ticker, data in forecasts.items() %}
-        new Chart(document.getElementById('chart-{{ ticker }}'), {
-            type: 'line',
-            data: {
-                labels: [{% for row in data %}"{{ row.date }}",{% endfor %}],
-            datasets: [{
-                label: '{{ ticker }}',
-                data: [{% for row in data %}{{ row.price }}, {% endfor %}],
-            borderColor: '#FFD700',   // golden line
-            backgroundColor: 'rgba(255, 215, 0, 0.2)', // soft golden fill
-            fill: true,
-            tension: 0.3
-            }]
-        },
-            options: {
-            plugins: { legend: { display: false } },
-            scales: {
-                x: { display: false },
-                y: { display: false }
-            },
-            responsive: true,
-            maintainAspectRatio: false
+        const forecasts = {{ forecasts | tojson }};
+
+        for (const [ticker, data] of Object.entries(forecasts)) {
+            const ctx = document.getElementById('chart-' + ticker);
+            if (ctx) {
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: data.map(row => row.date),
+                        datasets: [{
+                            label: ticker,
+                            data: data.map(row => row.price),
+                            borderColor: '#FFD700',   // golden line
+                            backgroundColor: 'rgba(255, 215, 0, 0.2)', // soft golden fill
+                            fill: true,
+                            tension: 0.3
+                        }]
+                    },
+                    options: {
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: { display: false },
+                            y: { display: false }
+                        },
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
+            }
         }
-    });
-        {% endfor %}
     </script>
 </body>
 
