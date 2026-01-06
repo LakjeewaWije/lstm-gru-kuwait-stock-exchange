@@ -63,6 +63,9 @@ print("Split:", split ,"X,shape:", len(X),X.shape,"y,shape:", len(y),y.shape)
 X_train_raw, X_test_raw = X[:split], X[split:]
 y_train_raw, y_test_raw = y[:split], y[split:]
 
+print("X_train_raw:", X_train_raw.shape ,"y_train_raw:", y_train_raw.shape,
+      "X_test_raw:", X_test_raw.shape, "y_test_raw:", y_test_raw.shape)
+
 
 # ==============================
 # 5. Scaling
